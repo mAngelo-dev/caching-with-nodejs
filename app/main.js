@@ -84,7 +84,7 @@ const server = net.createServer((connection) => {
     const parsedData = parseResp(data)
     if (parsedData[0].toUpperCase() === "PING") {
       connection.write("+PONG\r\n");
-    } else if (typeof parsedData === 'object' && parsedData[0] === "ECHO") {
+    } else if (typeof parsedData === 'object' && parsedData[0].toUpperCase() === "ECHO") {
       // This is made to remove ECHO from the response
       parsedData.splice(0, 1);
       const respArray = [`$${parsedData[0].length}\r\n`];
@@ -107,6 +107,7 @@ const server = net.createServer((connection) => {
         const value = cache[key];
         respArray.push(`${value}\r\n`);
       }
+      respArray.unshift(`$${respArray[0].length - 2}\r\n`);
       connection.write(respArray.join(''));
     }
   });
