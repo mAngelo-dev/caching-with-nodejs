@@ -1,6 +1,6 @@
 const net = require("net");
 
-const cache = {};
+const cache = new Map();
 
 function parseResp(buffer) {
   const data = buffer.toString();
