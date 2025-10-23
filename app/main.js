@@ -1,5 +1,7 @@
 const net = require("net");
 
+const cache = {};
+
 function parseResp(buffer) {
   const data = buffer.toString();
 
@@ -82,8 +84,7 @@ const server = net.createServer((connection) => {
     const parsedData = parseResp(data)
     if (parsedData[0].toUpperCase() === "PING") {
       connection.write("+PONG\r\n");
-    } else {
-      if (typeof parsedData === 'object' && parsedData[0] === "ECHO") {
+    } else if (typeof parsedData === 'object' && parsedData[0] === "ECHO") {
         // This is made to remove ECHO from the response
         parsedData.splice(0, 1);
         const respArray = [`$${parsedData[0].length}\r\n`];
@@ -91,9 +92,23 @@ const server = net.createServer((connection) => {
           respArray.push(str, `\r\n`);
         }
         connection.write(respArray.join(''));
+      } else if (parsedData[0].toUpperCase() === "SET") {
+      // This is made to remove SET from the response otherwise it would try to set "SET" as a key :)
+      parsedData.splice(0, 1);
+      for (let i = 0; i < parsedData.length; i += 2) {
+        const key = parsedData[i];
+        cache[key] = parsedData[i + 1];
       }
+      connection.write("+OK\r\n");
+    } else if (parsedData[0].toUpperCase() === "GET") {
+      const respArray = [];
+      for (let i = 1; i < parsedData.length; i++) {
+        const key = parsedData[i];
+        const value = cache[key];
+        respArray.push(`${key}\r\n`);
     }
-  })
+      connection.write(respArray.join(''));
+  }
 });
 
 server.listen(6379, "127.0.0.1");
