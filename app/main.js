@@ -86,8 +86,11 @@ const server = net.createServer((connection) => {
       if (typeof parsedData === 'object' && parsedData[0] === "ECHO") {
         // This is made to remove ECHO from the response
         parsedData.splice(0, 1);
-        const message = parsedData[0];
-        connection.write(`$${message.length}\r\n${message}\r\n`);
+        const respArray = [`$${parsedData[0].length}\r\n`];
+        for (const str of parsedData) {
+          respArray.push(str, `\r\n`);
+        }
+        connection.write(respArray.join(''));
       }
     }
   })
