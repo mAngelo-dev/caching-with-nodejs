@@ -1,5 +1,5 @@
 const net = require("net");
-const parseRESP = require("./utils/parseResp");
+const parseResp = require("./utils/parseResp");
 
 
 const server = net.createServer((connection) => {
