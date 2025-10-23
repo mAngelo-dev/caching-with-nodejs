@@ -1,4 +1,4 @@
-function parseRESP(buffer) {
+export default function parseResp(buffer) {
   const data = buffer.toString();
 
   // Simple String (+OK)
