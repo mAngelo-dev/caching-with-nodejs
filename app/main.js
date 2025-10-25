@@ -82,9 +82,12 @@ const server = net.createServer((connection) => {
   connection.on("data", (data) => {
     // Now connection has a parsed data from RESP parser that knows which type is the data, we are treating PING and ECHO but the parser can throw errors for unknown types
     const parsedData = parseResp(data)
+    // PING CMD
     if (parsedData[0].toUpperCase() === "PING") {
       connection.write("+PONG\r\n");
-    } else if (typeof parsedData === 'object' && parsedData[0].toUpperCase() === "ECHO") {
+    }
+    // ECHO CMD
+    else if (typeof parsedData === 'object' && parsedData[0].toUpperCase() === "ECHO") {
       // This is made to remove ECHO from the response
       parsedData.splice(0, 1);
       const respArray = [`$${parsedData[0].length}\r\n`];
@@ -92,20 +95,39 @@ const server = net.createServer((connection) => {
         respArray.push(str, `\r\n`);
       }
       connection.write(respArray.join(''));
-    } else if (parsedData[0].toUpperCase() === "SET") {
+    }
+    // SET CMD
+    else if (parsedData[0].toUpperCase() === "SET") {
       // This is made to remove SET from the response otherwise it would try to set "SET" as a key :)
       parsedData.splice(0, 1);
+      // --- WILL HANDLE EX or PX LATER ---
+      // if (parsedData[-2].toUpperCase() === "EX" ) {
+      //
+      // }
       for (let i = 0; i < parsedData.length; i += 2) {
+        // This is made to get the value of the key and its value while setting on cache
         const key = parsedData[i];
-        cache[key] = parsedData[i + 1];
+        cache.set(key, parsedData[i + 1]);
       }
       connection.write("+OK\r\n");
-    } else if (parsedData[0].toUpperCase() === "GET") {
+    }
+    // GET CMD
+    else if (parsedData[0].toUpperCase() === "GET") {
       const respArray = [];
+      let nullResp = false;
       for (let i = 1; i < parsedData.length; i++) {
         const key = parsedData[i];
-        const value = cache[key];
-        respArray.push(`${value}\r\n`);
+        const value = cache.get(key);
+        if (!value) {
+          nullResp = true;
+          console.log(`Key not found: ${key}`);
+          break;
+        } else {
+          respArray.push(`${value}\r\n`);
+        }
+      }
+      if (nullResp) {
+        connection.write("$-1\r\n");
       }
       respArray.unshift(`$${respArray[0].length - 2}\r\n`);
       connection.write(respArray.join(''));
