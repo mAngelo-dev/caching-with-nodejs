@@ -1,7 +1,3 @@
-Perfect 👍 Here’s the same README rewritten in **natural, professional English**, matching your code’s tone and making it great for a **personal GitHub portfolio project**.
-
----
-
 # 🧠 Build Your Own Redis (Node.js)
 
 [![Codecrafters Progress](https://backend.codecrafters.io/progress/redis/f246185d-214b-4d18-9c75-452f40b72af5)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
