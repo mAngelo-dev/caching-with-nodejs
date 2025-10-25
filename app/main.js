@@ -1,5 +1,6 @@
 const net = require("net");
 
+// REFERENCE OBJECT FOR CACHE IS key, {value, ExpiryTimestamp}
 const cache = new Map();
 
 function parseResp(buffer) {
@@ -76,7 +77,6 @@ function parseResp(buffer) {
   throw new Error('Unknown RESP type');
 }
 
-
 const server = net.createServer((connection) => {
   // Handle connection
   connection.on("data", (data) => {
@@ -85,7 +85,6 @@ const server = net.createServer((connection) => {
     // PING CMD
     if (parsedData[0].toUpperCase() === "PING") {
       connection.write("+PONG\r\n");
-      console.log("Sent PONG response");
     }
     // ECHO CMD
     else if (typeof parsedData === 'object' && parsedData[0].toUpperCase() === "ECHO") {
@@ -96,46 +95,53 @@ const server = net.createServer((connection) => {
         respArray.push(str, `\r\n`);
       }
       connection.write(respArray.join(''));
-      console.log(`ECHO response sent ${respArray.toString()}`)
     }
     // SET CMD
     else if (parsedData[0].toUpperCase() === "SET") {
       // This is made to remove SET from the response otherwise it would try to set "SET" as a key :)
       parsedData.splice(0, 1);
-      // --- WILL HANDLE EX or PX LATER ---
-      // if (parsedData[-2].toUpperCase() === "EX" ) {
-      //
-      // }
-      for (let i = 0; i < parsedData.length; i += 2) {
-        // This is made to get the value of the key and its value while setting on cache
-        const key = parsedData[i];
-        cache.set(key, parsedData[i + 1]);
+      if (parsedData.length >= 2 && parsedData[parsedData.length - 2].toUpperCase().includes("EX") ) {
+        const expiryMiliSeconds = parseInt(parsedData[parsedData.length - 1], 10) * 1000;
+        const expiryTimestamp = Date.now() + expiryMiliSeconds;
+        for (let i = 0; i < parsedData.length - 2; i += 2) {
+          const key = parsedData[i];
+          const value = parsedData[i + 1];
+          cache.set(key, {"value": value, "expiryTimestamp": new Date(expiryTimestamp)});
+          setTimeout(() => {
+            cache.delete(key);
+          }, expiryMiliSeconds);
+        }
+      } else if (parsedData.length >= 2 && parsedData[parsedData.length - 2].toUpperCase().includes("PX")) {
+        const expirySeconds = parseInt(parsedData[parsedData.length - 1], 10);
+        const expiryTimestamp = Date.now() + expirySeconds;
+        // console.log(`Attempt to parse ${parsedData[parsedData.length - 1]} as PX expiry milliseconds: ${expirySeconds}`);
+        for (let i = 0; i < parsedData.length - 2; i += 2) {
+          const key = parsedData[i];
+          const value = parsedData[i + 1];
+          cache.set(key, {"value": value, "expiryTimestamp": new Date(expiryTimestamp)});
+          setTimeout(() => {
+            cache.delete(key);
+          }, expirySeconds);
+        }
+      } else {
+        for (let i = 0; i < parsedData.length; i += 2) {
+          // This is made to get the value of the key and its value while setting on cache
+          const key = parsedData[i];
+          cache.set(key, {"value": parsedData[i + 1], "expiryTimestamp": null});
+        }
       }
       connection.write("+OK\r\n");
-      console.log(`Current cache: ${JSON.stringify(cache.entries())}`);
+      // console.log(`Current cache: ${JSON.stringify(Object.fromEntries(cache.entries()))}`);
     }
     // GET CMD
     else if (parsedData[0].toUpperCase() === "GET") {
-      const respArray = [];
-      let nullResp = false;
-      for (let i = 1; i < parsedData.length; i++) {
-        const key = parsedData[i];
-        const value = cache.get(key);
-        if (!value) {
-          nullResp = true;
-          console.log(`Key not found: ${key}`);
-          break;
-        } else {
-          respArray.push(`${value}\r\n`);
-        }
-      }
-      if (nullResp) {
+      const key = parsedData[1];
+      if (cache.has(key)) {
+        const entry = cache.get(key);
+        connection.write(`$${entry.value.length}\r\n${entry.value}\r\n`);
+      } else {
         connection.write("$-1\r\n");
       }
-      respArray.unshift(`$${respArray[0].length - 2}\r\n`);
-      connection.write(respArray.join(''));
-      console.log(`GET response sent: ${respArray}`);
-      console.log(`Current cache: ${JSON.stringify(cache.entries())}`);
     }
   });
 });
