@@ -1,33 +1,130 @@
-[![progress-banner](https://backend.codecrafters.io/progress/redis/f246185d-214b-4d18-9c75-452f40b72af5)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
+Perfect 👍 Here’s the same README rewritten in **natural, professional English**, matching your code’s tone and making it great for a **personal GitHub portfolio project**.
 
-This is a starting point for JavaScript solutions to the
-["Build Your Own Redis" Challenge](https://codecrafters.io/challenges/redis).
+---
 
-In this challenge, you'll build a toy Redis clone that's capable of handling
-basic commands like `PING`, `SET` and `GET`. Along the way we'll learn about
-event loops, the Redis protocol and more.
+# 🧠 Build Your Own Redis (Node.js)
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+[![Codecrafters Progress](https://backend.codecrafters.io/progress/redis/f246185d-214b-4d18-9c75-452f40b72af5)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
 
-# Passing the first stage
+This project is a **Node.js implementation** inspired by the [**“Build Your Own Redis”**](https://codecrafters.io/challenges/redis) challenge on **Codecrafters**.
+The goal is to build a minimal **Redis-like server** from scratch, understanding how Redis works internally — including the **RESP protocol**, **event loops**, and **in-memory storage**.
 
-The entry point for your Redis implementation is in `app/main.js`. Study and
-uncomment the relevant code, and push your changes to pass the first stage:
+---
 
-```sh
-git commit -am "pass 1st stage" # any msg
-git push origin master
+## 🚀 Project Overview
+
+The objective is to recreate a basic Redis server capable of handling core commands such as:
+
+* `PING` → returns `PONG`
+* `SET key value` → stores a value
+* `GET key` → retrieves a stored value
+* (Future stages) support for key expiration (`EX`), multiple clients, and replication
+
+---
+
+## 🧩 Project Structure
+
+```
+📦 codecrafters-redis-javascript
+├── app/
+│   ├── main.js        # Entry point of the Redis server
+│   ├── parser.js      # RESP protocol parser
+│   ├── cache.js       # In-memory storage (Map-based)
+│   └── utils.js       # Helper functions
+├── your_program.sh    # Startup script
+├── package.json
+└── README.md
 ```
 
-That's all!
+---
 
-# Stage 2 & beyond
+## ⚙️ Running the Project
 
-Note: This section is for stages 2 and beyond.
+### Prerequisites
 
-1. Ensure you have `node (21)` installed locally
-1. Run `./your_program.sh` to run your Redis server, which is implemented in
-   `app/main.js`.
-1. Commit your changes and run `git push origin master` to submit your solution
-   to CodeCrafters. Test output will be streamed to your terminal.
+* **Node.js v21+**
+* **Git**
+
+### Start the Redis server
+
+```bash
+# Clone the repository
+git clone https://github.com/mAngelo-dev/caching-with-nodejs.git
+cd caching-with-nodejs
+
+# Install dependencies (if any)
+npm install
+
+# Run the server
+./your_program.sh
+```
+
+The server listens for TCP connections (usually on port `6379`).
+
+---
+
+## 🧪 Testing the Server
+
+You can test it using the **redis-cli**:
+
+```bash
+redis-cli -p 6379
+```
+
+Try running the following commands:
+
+```
+PING
+SET mykey "Hello World"
+GET mykey
+```
+
+---
+
+## 🧱 Understanding the RESP Protocol
+
+Redis communicates using the **REdis Serialization Protocol (RESP)**.
+Example of a raw TCP request:
+
+```
+*1\r\n$4\r\nPING\r\n
+```
+
+Expected response:
+
+```
++PONG\r\n
+```
+
+This project manually parses and responds to RESP messages using Node.js’s `net` module.
+
+---
+
+## 🧠 Key Concepts Learned
+
+While developing this project, I explored:
+
+* Building **TCP servers** with Node.js `net` module
+* Parsing binary/text protocols (RESP)
+* **In-memory caching** using `Map` and TTL management
+* Handling **buffers and byte streams** efficiently
+* Understanding **client-server protocols** and **event-driven concurrency**
+
+---
+
+## 🧭 Next Steps
+
+* Add support for `EX` and `PX` (key expiration)
+* Handle multiple clients concurrently
+* Improve logging and error handling
+* Add automated tests
+
+---
+
+## 👨‍💻 Author
+
+**Miguel Angelo (Migs)**
+📍 Web Developer | Exploring distributed systems and backend architecture
+🔗 [GitHub Profile](https://github.com/mAngelo-dev)
+
+---
