@@ -123,4 +123,5 @@ While developing this project, I explored:
 📍 Web Developer | Exploring distributed systems and backend architecture
 🔗 [GitHub Profile](https://github.com/mAngelo-dev)
 
+AI was used to generate documentation and with some minor fixes on parseResp functionality.
 ---
