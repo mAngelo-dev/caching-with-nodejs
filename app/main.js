@@ -85,6 +85,7 @@ const server = net.createServer((connection) => {
     // PING CMD
     if (parsedData[0].toUpperCase() === "PING") {
       connection.write("+PONG\r\n");
+      console.log("Sent PONG response");
     }
     // ECHO CMD
     else if (typeof parsedData === 'object' && parsedData[0].toUpperCase() === "ECHO") {
@@ -95,6 +96,7 @@ const server = net.createServer((connection) => {
         respArray.push(str, `\r\n`);
       }
       connection.write(respArray.join(''));
+      console.log(`ECHO response sent ${respArray.toString()}`)
     }
     // SET CMD
     else if (parsedData[0].toUpperCase() === "SET") {
@@ -110,6 +112,7 @@ const server = net.createServer((connection) => {
         cache.set(key, parsedData[i + 1]);
       }
       connection.write("+OK\r\n");
+      console.log(`Current cache: ${JSON.stringify(cache.entries())}`);
     }
     // GET CMD
     else if (parsedData[0].toUpperCase() === "GET") {
@@ -131,6 +134,7 @@ const server = net.createServer((connection) => {
       }
       respArray.unshift(`$${respArray[0].length - 2}\r\n`);
       connection.write(respArray.join(''));
+      console.log(`GET response sent: ${respArray.toString()}`);
     }
   });
 });
