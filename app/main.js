@@ -134,7 +134,8 @@ const server = net.createServer((connection) => {
       }
       respArray.unshift(`$${respArray[0].length - 2}\r\n`);
       connection.write(respArray.join(''));
-      console.log(`GET response sent: ${respArray.toString()}`);
+      console.log(`GET response sent: ${respArray}`);
+      console.log(`Current cache: ${JSON.stringify(cache.entries())}`);
     }
   });
 });
