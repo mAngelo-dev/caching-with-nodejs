@@ -24,9 +24,6 @@ The objective is to recreate a basic Redis server capable of handling core comma
 📦 codecrafters-redis-javascript
 ├── app/
 │   ├── main.js        # Entry point of the Redis server
-│   ├── parser.js      # RESP protocol parser
-│   ├── cache.js       # In-memory storage (Map-based)
-│   └── utils.js       # Helper functions
 ├── your_program.sh    # Startup script
 ├── package.json
 └── README.md
